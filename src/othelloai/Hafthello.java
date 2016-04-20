@@ -14,7 +14,8 @@ public class Hafthello {
         this.rowCount = rowCount;
         this.colCount = colCount;
         this.maxTime = maxTime;
-        this.color = Character.toUpperCase(color);
+        //HARDCODED
+        this.color = color;
         if(color == 'B'){
             opponentColor = 'W';
         }else{
@@ -48,7 +49,7 @@ public class Hafthello {
         }
         //check to see if there is an opposing disk adjacent to target
         if((board[row - 1][col - 1] != opponentColor) &&          //top-left
-                (board[row][col - 1] != opponentColor) &&                        //top
+                (board[row][col - 1] != opponentColor) &&         //top
                 (board[row + 1][col - 1] != opponentColor) &&     //top-right
                 (board[row - 1][col] != opponentColor) &&         //left
                 (board[row + 1][col] != opponentColor) &&         //right
@@ -73,7 +74,7 @@ public class Hafthello {
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1){
+                if(pointer > 1 && board[row][col+pointer] == color){
                     isHorizontalRight = true;
                 }
                 break;
@@ -84,8 +85,8 @@ public class Hafthello {
             if(board[row][col - pointer] != ' ' && board[row][col - pointer] != color){
                 pointer++;
             }else{
-                //we've traversed some of the opponents land
-                if(pointer > 1){
+                //we've traversed some of the opponents land and we've ended on our own color
+                if(pointer > 1 && board[row][col-pointer] == color){
                     isHorizontalLeft = true;
                 }
                 break;
@@ -97,7 +98,7 @@ public class Hafthello {
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1){
+                if(pointer > 1 && board[row+pointer][col] == color){
                     isVerticalDown = true;
                 }
                 break;
@@ -109,7 +110,7 @@ public class Hafthello {
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1){
+                if(pointer > 1 && board[row-pointer][col] == color){
                     isVerticalUp = true;
                 }
                 break;

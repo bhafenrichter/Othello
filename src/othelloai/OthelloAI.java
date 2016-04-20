@@ -72,9 +72,8 @@ public class OthelloAI {
         //INSERT CODE HERE FOR ANY ADDITIONAL SET-UP OPTIONS
         //==================================================
         //==================================================
-
-        Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
-
+        
+        
         //==================================================
         //==================================================
         
@@ -99,7 +98,7 @@ public class OthelloAI {
             currentBoard.status = 1;                                //by now, both players are engaged and play can begin
             while (currentBoard.saveBoard()==false){}               //try until the board is saved
         }
-
+        
         if (myColor == 'B'){
             myColorText = "Black";
             opponentColor = 'W';
@@ -114,8 +113,8 @@ public class OthelloAI {
         //==================================================
         //==================================================
 
+        Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
         
-            
         //==================================================
         //==================================================
 
@@ -200,7 +199,7 @@ public class OthelloAI {
                 currentBoard = Board.loadBoard();
         }
         keyboardInput.getKeyboardInput("\nPress ENTER to exit...");
-	}
+        }
 	//***************************************************************************************************
 }
 //*******************************************************************************************************
