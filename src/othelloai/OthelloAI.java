@@ -20,7 +20,7 @@ public class OthelloAI {
     //===========================================
     //===========================================
 
-
+    
 
     //===========================================
     //===========================================
@@ -39,7 +39,7 @@ public class OthelloAI {
         
         //============================================
         //============================================
-        KeyboardInputClass keyboardInput = new KeyboardInputClass();
+		KeyboardInputClass keyboardInput = new KeyboardInputClass();
         int pollDelay = 250;
         long moveStartTime, moveEndTime, moveGraceTime = 10000;     //times in milliseconds
         Board currentBoard = Board.loadBoard();
@@ -73,8 +73,7 @@ public class OthelloAI {
         //==================================================
         //==================================================
 
-
-
+        Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
 
         //==================================================
         //==================================================
@@ -116,7 +115,7 @@ public class OthelloAI {
         //==================================================
 
         
-        
+            
         //==================================================
         //==================================================
 
@@ -136,11 +135,13 @@ public class OthelloAI {
                 //===================================================
                 //===================================================
 
+                //artificial intelligence makes his move
+                Decision d = ai.makeRandomMove(currentBoard.board);
                 
                 
-                
-                
-                
+                //set the currentBoard parameters to reflect the decision
+                currentBoard.board[d.row][d.col] = currentBoard.whoseTurn;
+                myMove = d.move;
                 
                 //===================================================
                 //===================================================
