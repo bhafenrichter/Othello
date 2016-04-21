@@ -44,18 +44,51 @@ public class Hafthello {
         if(board[row][col] != ' '){
             return false;
         }
-        if(row + 1 >= rowCount || row - 1 < 0 || col + 1 >= colCount || col - 1 < 0){
-            return false;
-        }
-        //check to see if there is an opposing disk adjacent to target
-        if((board[row - 1][col - 1] != opponentColor) &&          //top-left
-                (board[row][col - 1] != opponentColor) &&         //top
-                (board[row + 1][col - 1] != opponentColor) &&     //top-right
-                (board[row - 1][col] != opponentColor) &&         //left
-                (board[row + 1][col] != opponentColor) &&         //right
-                (board[row - 1][col + 1] != opponentColor) &&     //bottom-left
-                (board[row][col - 1] != opponentColor) &&         //bottom
-                (board[row + 1][col + 1] != opponentColor)){      //bottom-right
+        
+        boolean hasAdjacentOpponent = false;
+        try{
+            if(board[row - 1][col - 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //top left
+        }catch(Exception e){}
+        try{
+            if(board[row][col - 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //top
+        }catch(Exception e){}
+        try{
+            if(board[row + 1][col - 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //top right
+        }catch(Exception e){}
+        try{
+            if(board[row - 1][col] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //left
+        }catch(Exception e){}
+        try{
+            if(board[row + 1][col] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //right
+        }catch(Exception e){}
+        try{
+            if(board[row + 1][col - 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //bottom left
+        }catch(Exception e){}
+        try{
+            if(board[row][col + 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //bottom
+        }catch(Exception e){}
+        try{
+            if(board[row + 1][col + 1] == opponentColor){
+                hasAdjacentOpponent = true;
+            }   //bottom right
+        }catch(Exception e){}
+        
+        
+        if(hasAdjacentOpponent == false){
             return false;
         }
         
@@ -69,7 +102,7 @@ public class Hafthello {
         int pointer = 1;
         
         //go all the way to the right until you hit the end to see if we get any squares
-        while(col + pointer <= colCount){
+        while(col + pointer < colCount){
             if(board[row][col + pointer] != ' ' && board[row][col + pointer] != color){
                 pointer++;
             }else{
@@ -93,7 +126,7 @@ public class Hafthello {
             }
         }
         pointer = 1;
-        while(row + pointer >= 0){
+        while(row + pointer < rowCount){
             if(board[row + pointer][col] != ' ' && board[row + pointer][col] != color){
                 pointer++;
             }else{
