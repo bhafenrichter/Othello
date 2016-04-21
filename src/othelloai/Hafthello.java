@@ -99,6 +99,10 @@ public class Hafthello {
         boolean isHorizontalLeft = false;
         boolean isVerticalUp = false;
         boolean isVerticalDown = false;
+        boolean isDiagonalTopLeft = false;
+        boolean isDiagonalTopRight = false;
+        boolean isDiagonalBottomLeft = false;
+        boolean isDiagonalBottomRight = false;
         int pointer = 1;
         
         //go all the way to the right until you hit the end to see if we get any squares
@@ -150,7 +154,66 @@ public class Hafthello {
             }
         }
         
-        if((isHorizontalLeft || isHorizontalRight || isVerticalUp || isVerticalDown) == false){
+        pointer = 1;
+        while(row - pointer >= 0 && col-pointer >= 0){
+            if(board[row - pointer][col - pointer] != ' ' && board[row - pointer][col - pointer] != color){
+                pointer++;
+            }else{
+                //we've traversed some of the opponents land
+                if(pointer > 1 && board[row-pointer][col-pointer] == color){
+                    isDiagonalTopLeft = true;
+                }
+                break;
+            }
+        }
+        
+        pointer = 1;
+        while(row - pointer >= 0 && col + pointer < colCount){
+            if(board[row - pointer][col + pointer] != ' ' && board[row - pointer][col + pointer] != color){
+                pointer++;
+            }else{
+                //we've traversed some of the opponents land
+                if(pointer > 1 && board[row-pointer][col+pointer] == color){
+                    isDiagonalTopRight = true;
+                }
+                break;
+            }
+        }
+        
+        pointer = 1;
+        while(row + pointer < rowCount && col - pointer >= 0){
+            if(board[row + pointer][col - pointer] != ' ' && board[row + pointer][col - pointer] != color){
+                pointer++;
+            }else{
+                //we've traversed some of the opponents land
+                if(pointer > 1 && board[row+pointer][col-pointer] == color){
+                    isDiagonalBottomLeft = true;
+                }
+                break;
+            }
+        }
+        
+        pointer = 1;
+        while(row + pointer < rowCount && col + pointer < colCount){
+            if(board[row + pointer][col + pointer] != ' ' && board[row + pointer][col + pointer] != color){
+                pointer++;
+            }else{
+                //we've traversed some of the opponents land
+                if(pointer > 1 && board[row+pointer][col+pointer] == color){
+                    isDiagonalBottomRight = true;
+                }
+                break;
+            }
+        }
+        
+        if((isHorizontalLeft 
+                || isHorizontalRight 
+                || isVerticalUp 
+                || isVerticalDown 
+                || isDiagonalBottomLeft 
+                || isDiagonalBottomRight 
+                || isDiagonalTopLeft 
+                || isDiagonalTopRight) == false){
             return false;
         }
         
