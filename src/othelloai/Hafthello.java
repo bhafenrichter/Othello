@@ -1,6 +1,7 @@
 
 package othelloai;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Hafthello {
@@ -39,6 +40,59 @@ public class Hafthello {
         }
     }
 
+    public char[][] drawMove(char[][] board, int row, int col, char color){
+        //draw piece at first location
+        board[row][col] = color;
+        
+        ArrayList<String> directions = getValidComboDirections(board, row, col);
+        for(int i = 0; i < directions.size(); i++){
+            int pointer = 1;
+            if(directions.get(i).equals("up")){
+                while(board[row-pointer][col] != color){
+                    board[row-pointer][col] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("down")){
+                while(board[row+pointer][col] != color){
+                    board[row+pointer][col] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("left")){
+                while(board[row][col-pointer] != color){
+                    board[row][col-pointer] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("right")){
+                while(board[row][col+pointer] != color){
+                    board[row][col+pointer] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("topleft")){
+               while(board[row-pointer][col-pointer] != color){
+                    board[row-pointer][col-pointer] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("topright")){
+                while(board[row-pointer][col+pointer] != color){
+                    board[row-pointer][col+pointer] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("bottomleft")){
+                while(board[row+pointer][col-pointer] != color){
+                    board[row+pointer][col-pointer] = color;
+                    pointer++;
+                }
+            }else if(directions.get(i).equals("bottomright")){
+                while(board[row+pointer][col+pointer] != color){
+                    board[row+pointer][col+pointer] = color;
+                    pointer++;
+                }
+            }
+        }
+        
+        return board;
+    }
+    
     private boolean isValidMove(int col, int row, char[][] board) {
         //check to see if there is anything already in that spot
         if(board[row][col] != ' '){
@@ -94,25 +148,28 @@ public class Hafthello {
         
         //finally check to see if there is a chip on a horizontal, vertical, or diagonal line
         //horizontal lines
-       
-        boolean isHorizontalRight = false;
-        boolean isHorizontalLeft = false;
-        boolean isVerticalUp = false;
-        boolean isVerticalDown = false;
-        boolean isDiagonalTopLeft = false;
-        boolean isDiagonalTopRight = false;
-        boolean isDiagonalBottomLeft = false;
-        boolean isDiagonalBottomRight = false;
-        int pointer = 1;
+        ArrayList<String> directions = getValidComboDirections(board, row, col);
+        
+        //we can't chain a valid move
+        if(directions.size() == 0){
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private ArrayList<String> getValidComboDirections(char[][] board, int row, int col){
+        ArrayList<String> directions = new ArrayList<String>();
         
         //go all the way to the right until you hit the end to see if we get any squares
+        int pointer = 1;
         while(col + pointer < colCount){
             if(board[row][col + pointer] != ' ' && board[row][col + pointer] != color){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row][col+pointer] == color){
-                    isHorizontalRight = true;
+                    directions.add("right");
                 }
                 break;
             }
@@ -124,7 +181,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land and we've ended on our own color
                 if(pointer > 1 && board[row][col-pointer] == color){
-                    isHorizontalLeft = true;
+                    directions.add("left");
                 }
                 break;
             }
@@ -136,7 +193,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row+pointer][col] == color){
-                    isVerticalDown = true;
+                    directions.add("down");
                 }
                 break;
             }
@@ -148,7 +205,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row-pointer][col] == color){
-                    isVerticalUp = true;
+                    directions.add("up");
                 }
                 break;
             }
@@ -161,7 +218,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row-pointer][col-pointer] == color){
-                    isDiagonalTopLeft = true;
+                    directions.add("topleft");
                 }
                 break;
             }
@@ -174,7 +231,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row-pointer][col+pointer] == color){
-                    isDiagonalTopRight = true;
+                    directions.add("topright");
                 }
                 break;
             }
@@ -187,7 +244,7 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row+pointer][col-pointer] == color){
-                    isDiagonalBottomLeft = true;
+                     directions.add("bottomleft");
                 }
                 break;
             }
@@ -200,25 +257,12 @@ public class Hafthello {
             }else{
                 //we've traversed some of the opponents land
                 if(pointer > 1 && board[row+pointer][col+pointer] == color){
-                    isDiagonalBottomRight = true;
+                     directions.add("bottomright");
                 }
                 break;
             }
         }
-        
-        if((isHorizontalLeft 
-                || isHorizontalRight 
-                || isVerticalUp 
-                || isVerticalDown 
-                || isDiagonalBottomLeft 
-                || isDiagonalBottomRight 
-                || isDiagonalTopLeft 
-                || isDiagonalTopRight) == false){
-            return false;
-        }
-        
-        
-        return true;
+        return directions;
     }
 }
 

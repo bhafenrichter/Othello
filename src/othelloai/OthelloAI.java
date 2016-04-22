@@ -137,9 +137,8 @@ public class OthelloAI {
                 //artificial intelligence makes his move
                 Decision d = ai.makeRandomMove(currentBoard.board);
                 
-                
                 //set the currentBoard parameters to reflect the decision
-                currentBoard.board[d.row][d.col] = currentBoard.whoseTurn;
+                currentBoard.board = ai.drawMove(currentBoard.board, d.row, d.col, currentBoard.whoseTurn);
                 myMove = d.move;
                 
                 //===================================================
