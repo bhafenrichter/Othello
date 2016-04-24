@@ -114,7 +114,7 @@ public class OthelloAI {
         //==================================================
 
         Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
-        
+        ai.selectMode();
         //==================================================
         //==================================================
 
@@ -135,11 +135,17 @@ public class OthelloAI {
                 //===================================================
 
                 //artificial intelligence makes his move
-                Decision d = ai.makeRandomMove(currentBoard.board);
+                Decision d = ai.makeMove(currentBoard.board);
                 
-                //set the currentBoard parameters to reflect the decision
-                currentBoard.board = ai.drawMove(currentBoard.board, d.row, d.col, currentBoard.whoseTurn);
-                myMove = d.move;
+                //if we have found a valid move
+                if (d.move.length() > 0) {
+                    //set the currentBoard parameters to reflect the decision
+                    currentBoard.board = ai.drawMove(currentBoard.board, d.row, d.col, currentBoard.whoseTurn);
+                    myMove = currentBoard.whoseTurn + " has a score of: " + ai.evaluateBoard(currentBoard.board);
+                }else{
+                    myMove = "";
+                }
+
                 
                 //===================================================
                 //===================================================

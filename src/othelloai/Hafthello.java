@@ -11,6 +11,7 @@ public class Hafthello {
     int maxTime;
     char color;
     char opponentColor;
+    String mode;
     public Hafthello(int rowCount, int colCount, int maxTime, char color){
         this.rowCount = rowCount;
         this.colCount = colCount;
@@ -22,22 +23,79 @@ public class Hafthello {
         }else{
             opponentColor = 'B';
         }
+        //default to random
+        mode = "random";
+    }
+    
+    public void selectMode(){
+        KeyboardInputClass input = new KeyboardInputClass();
+        System.out.println("1. User");
+        System.out.println("2. Random");
+        System.out.println("3. Hafthello 1.0");
+        String str = input.getKeyboardInput("Select Intelligence:");
+        
+        if(str.equals("1")){
+            mode = "user";
+        }else if(str.equals("2")){
+            mode = "random";
+        }else if(str.equals("3")){
+            mode = "hafthello";
+        }
     }
     
     public Decision makeMove(char[][] board){
+        if(mode.equals("random")){
+            return makeRandomMove(board);
+        }else if(mode.equals("user")){
+            return makeUserMove(board);
+        }else if(mode.equals("hafthello")){
+            return makeSmartMove(board);
+        }else{
+            return new Decision(0,0,"");
+        }
         
-        return new Decision(0,0,"");
     }
     
-    public Decision makeRandomMove(char[][] board){
-        while(true){
-            Random rand = new Random();
-            int col = rand.nextInt(colCount);
-            int row = rand.nextInt(rowCount); 
-            if(isValidMove(col,row,board)){
-                return new Decision(row,col, row + " " + col);
+    private Decision makeUserMove(char[][] board) {
+        KeyboardInputClass input = new KeyboardInputClass();
+        while (true) {
+            String move = input.getKeyboardInput("Enter Move (Ex. 'AB' will place piece in row A at column B):");
+
+            char[] moves = move.toLowerCase().toCharArray();
+            int row = (int) moves[0] - 97;
+            int col = (int) moves[1] - 97;
+
+            if (isValidMove(col, row, board)) {
+                return new Decision(row, col, move);
+            } else {
+                System.out.println("Invalid Move, please try again.");
             }
         }
+    }
+
+    private Decision makeSmartMove(char[][] board) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private Decision makeRandomMove(char[][] board){
+        //try to make a move and if you can't make a move after a certain amount of tries, concede turn
+        int tryCount = 0;
+        while(!isBoardFull(board)){
+            if(tryCount == 100){
+                return new Decision(-1, -1, "");
+            }
+            
+            Random rand = new Random();
+            int col = rand.nextInt(colCount);
+            int row = rand.nextInt(rowCount);
+            if(isValidMove(col,row,board)){
+                tryCount = 0;
+                return new Decision(row,col, row + " " + col);
+            }else{
+                tryCount++;
+            }
+        }
+        return new Decision(-1, -1, "");
     }
 
     public char[][] drawMove(char[][] board, int row, int col, char color){
@@ -263,6 +321,29 @@ public class Hafthello {
             }
         }
         return directions;
+    }
+    
+    public boolean isBoardFull(char[][] board){
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if(board[i][j] == ' '){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    public int evaluateBoard(char[][] board){
+        int score = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if(board[i][j] == color){
+                    score++;
+                }
+            }
+        }
+        return score;
     }
 }
 
