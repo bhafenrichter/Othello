@@ -39,9 +39,9 @@ public class OthelloAI {
         
         //============================================
         //============================================
-		KeyboardInputClass keyboardInput = new KeyboardInputClass();
+        KeyboardInputClass keyboardInput = new KeyboardInputClass();
         int pollDelay = 250;
-        long moveStartTime, moveEndTime, moveGraceTime = 10000;     //times in milliseconds
+        long moveStartTime, moveEndTime, moveGraceTime = 1000000;     //times in milliseconds
         Board currentBoard = Board.loadBoard();
         String myMove="", myColorText="";
         System.out.println("--- Othello ---");
@@ -141,7 +141,8 @@ public class OthelloAI {
                 if (d.move.length() > 0) {
                     //set the currentBoard parameters to reflect the decision
                     currentBoard.board = ai.drawMove(currentBoard.board, d.row, d.col, currentBoard.whoseTurn);
-                    myMove = currentBoard.whoseTurn + " has a score of: " + ai.evaluateBoard(currentBoard.board);
+                    //myMove = currentBoard.whoseTurn + " has a score of: " + ai.evaluateBoard(currentBoard.board);
+                    myMove = d.move;
                 }else{
                     myMove = "";
                 }
