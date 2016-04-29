@@ -1,18 +1,21 @@
 package othelloai;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class OthelloBoard {
 
-    OthelloBoard next;
+    ArrayList<OthelloBoard> potentialBoards;
+    OthelloBoard parent;
     char[][] board;
-    int[][] scores;
-    int level;
-    int highestScore;
+    int score;
+    int x;
+    int y;
 
-    public OthelloBoard(char[][] board, int level) {
+
+    public OthelloBoard(char[][] board) {
         this.board = board;
-        scores = new int[board.length][board[0].length];
+        potentialBoards = new ArrayList<OthelloBoard>();
         int highestScore = 0;
     }
 }

@@ -13,6 +13,9 @@ public class Hafthello {
     char color;
     char opponentColor;
     String mode;
+    
+    public static int defaultDepth = 3;
+    
     public Hafthello(int rowCount, int colCount, int maxTime, char color){
         this.rowCount = rowCount;
         this.colCount = colCount;
@@ -52,7 +55,7 @@ public class Hafthello {
         }else if(mode.equals("user")){
             return makeUserMove(board);
         }else if(mode.equals("hafthello")){
-            return makeSmartMove(new OthelloBoard(board, 0));
+            return makeSmartMove(new OthelloBoard(board),0);
         }else{
             return new Decision(0,0,"");
         }
@@ -77,50 +80,51 @@ public class Hafthello {
         }
     }
 
-    private Decision makeSmartMove(OthelloBoard board) {
-        int depth = 3;
-        
-        //traverse each depth
-        char[][] currentBoard = copyOf(board.board);
-        for(int i = 0; i < depth; i++){
-            
+    private Decision makeSmartMove(OthelloBoard board, int depth) {
+        //we've traversed down to the last depth we want to traverse to
+        if(depth == defaultDepth){ 
+            return null; 
         }
         
-        //iterate through the entire board and get scores for each
-        int[][] scores = new int[board.board.length][board.board[0].length];
+        //get what the current player color is
+        char currentColor = ' ';
+        if(depth % 2 == 0){
+            currentColor = color;
+        }else{
+            currentColor = opponentColor;
+        }
+        
+        char[][] current = copyOf(board.board);
+        
+        //iterate through the entire board and get the valid boards
+        //int[][] scores = new int[board.board.length][board.board[0].length];
         for (int i = 0; i < board.board.length; i++) {
             for (int j = 0; j < board.board[0].length; j++) {
                 if(isValidMove(i,j,board.board)){
-                    char[][] futureBoard = drawMove(copyOf(board.board), j, i, color);
-                    scores[j][i] = evaluateBoard(futureBoard);
-                }else{
-                    scores[j][i] = 0;
+                    //draw the board and add it to the tree, use the parent to traverse back up to needed position
+                    OthelloBoard child = new OthelloBoard(drawMove(copyOf(board.board),i, j, currentColor));
+                    child.x = i;
+                    child.y = j;
+                    child.score = evaluateBoard(child.board);
+                    child.parent = board;
+                    board.potentialBoards.add(child);
                 }
             }
         }
         
-        int bestX = 0;
-        int bestY = 0;
-        int bestScore = 0;
-        for (int i = 0; i < scores.length; i++) {
-            for (int j = 0; j < scores[0].length; j++) {
-                System.out.print(scores[i][j] + " ");
-                if(scores[i][j] > bestScore){
-                    bestScore = scores[i][j];
-                    bestX = i;
-                    bestY = j;
-                }
-            }
-            System.out.println("");
+        //iterate through and get the values of the rest of the boards in the tree
+        for(int i = 0; i < board.potentialBoards.size(); i++){
+            makeSmartMove(board.potentialBoards.get(i), depth++);
         }
-        
-        if (bestScore == 0) {
-            //no moves 
-            return new Decision(-1, -1, "");
-        } else {
-            return new Decision(bestX, bestY, bestX + " " + bestY);
-        }
-       
+//        for(int i = 0; i < board.potentialBoards.size(); i++){
+//            for (int j = 0; j < board.board.length; j++) {
+//                for (int k = 0; k < board.board[0].length; k++) {
+//                    System.out.print(board.potentialBoards.get(i).board[j][k]);
+//                }
+//                System.out.println("");
+//            }
+//        }
+        return new Decision(0, 0, "");
     }
     
     private Decision makeRandomMove(char[][] board){
