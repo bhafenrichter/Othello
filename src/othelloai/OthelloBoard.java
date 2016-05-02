@@ -11,11 +11,12 @@ public class OthelloBoard {
     int score;
     int x;
     int y;
-
+    int depth;
 
     public OthelloBoard(char[][] board) {
         this.board = board;
         potentialBoards = new ArrayList<OthelloBoard>();
-        int highestScore = 0;
+        score = 0;
+        depth = 0;
     }
 }
