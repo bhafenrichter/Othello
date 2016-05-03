@@ -15,8 +15,6 @@ public class Hafthello {
     String mode;
     
     //helps keeping track of recursive calls
-    char currentColor;
-    char currentOpponentColor;
     Decision bestDecision = new Decision(0, 0, "");
     int bestDecisionScore = 0;
     
@@ -57,20 +55,19 @@ public class Hafthello {
 
     public Decision makeMove(char[][] board) {
         if (mode.equals("random")) {
-            currentColor = color;
-            currentOpponentColor = opponentColor;
             return makeRandomMove(board);
         } else if (mode.equals("user")) {
-            currentColor = color;
-            currentOpponentColor = opponentColor;
             return makeUserMove(board);
         } else if (mode.equals("hafthello")) {
             bestDecision = new Decision(0,0,"");
             bestDecisionScore = 0;
-            numCount = 0;
-            Decision d = makeSmartMove(new OthelloBoard(board));
-            System.out.println("Boards iterated through: " + ++numCount);
-            return d;
+            
+            //generates best move in bestDecision
+            makeSmartMove(new OthelloBoard(board));
+            if(bestDecision.move.length() == 0){
+                bestDecision = makeRandomMove(board);
+            }
+            return bestDecision;
         } else {
             return new Decision(0, 0, "");
         }
@@ -87,7 +84,7 @@ public class Hafthello {
             int row = (int) moves[0] - 97;
             int col = (int) moves[1] - 97;
 
-            if (isValidMove(col, row, board)) {
+            if (isValidMove(col, row, board, color, opponentColor)) {
                 return new Decision(row, col, move);
             } else {
                 System.out.println("Invalid Move, please try again.");
@@ -95,64 +92,98 @@ public class Hafthello {
         }
     }
 
-    int numCount = 0;
-    private Decision makeSmartMove(OthelloBoard board) {
+    private void makeSmartMove(OthelloBoard board) {
         //printBoard(board.board, board.depth);
-        numCount++;
-        if(board.depth == defaultDepth){ 
-            int currentScore = evaluateBoard(board.board);
-            if(currentScore >= bestDecisionScore){
-                OthelloBoard presentBoard = board.parent.parent.parent.parent;
-                bestDecision = new Decision(presentBoard.y, presentBoard.x, "" + presentBoard.x + presentBoard.y);
-                bestDecisionScore = currentScore;
-            }
-            return null;
-        }
-        
-        if(board.depth % 2 == 0){
+        char currentColor = ' ';
+        char currentOpponentColor = ' ';
+        if (board.depth % 2 == 0) {
             currentColor = color;
             currentOpponentColor = opponentColor;
-        }else{
+        } else {
             currentColor = opponentColor;
             currentOpponentColor = color;
         }
-        
-        //iterate through the entire board and get the valid boards
-        for (int i = 0; i < board.board.length; i++) {
-            for (int j = 0; j < board.board[0].length; j++) {
-                if(isValidMove(i,j,board.board)){
-                    //draw the board and add it to the tree, use the parent to traverse back up to needed position
-                    OthelloBoard child = new OthelloBoard(drawMove(copyOf(board.board),i, j, currentColor));
-                    child.x = i;
-                    child.y = j;
-                    child.score = evaluateBoard(child.board);
-                    child.parent = board;
-                    child.depth = board.depth + 1;
-                    board.potentialBoards.add(child);
+
+        //will set the bestDecision to open corner
+        if(!isCornerOpen(board)){
+        //end the search and see how far we've come
+        if (board.depth == defaultDepth) {
+            int sumScore = 0;
+            OthelloBoard cur = board;
+            for (int i = 1; i <= defaultDepth; i++) {
+                //multiplier to give prescendence to moves currently happening
+                sumScore += evaluateBoard(cur.board, color);
+                cur = cur.parent;
+            }
+            //int currentScore = evaluateBoard(board.board);
+            if (sumScore > bestDecisionScore) {
+
+                OthelloBoard presentBoard = board;
+                for (int i = 0; i < defaultDepth - 1; i++) {
+                    presentBoard = presentBoard.parent;
+                }
+                bestDecision = new Decision(presentBoard.y, presentBoard.x, "" + presentBoard.x + presentBoard.y);
+                bestDecisionScore = sumScore;
+            }
+        } else {
+            //iterate through the entire board and get the valid boards
+            for (int i = 0; i < board.board.length; i++) {
+                for (int j = 0; j < board.board[0].length; j++) {
+                    if (isValidMove(i, j, board.board, currentColor, currentOpponentColor)) {
+                        //draw the board and add it to the tree, use the parent to traverse back up to needed position
+                        OthelloBoard child = new OthelloBoard(drawMove(copyOf(board.board), i, j, currentColor));
+                        child.x = i;
+                        child.y = j;
+                        child.score = evaluateBoard(child.board, currentColor);
+                        child.parent = board;
+                        child.depth = board.depth + 1;
+                        board.potentialBoards.add(child);
+                    }
                 }
             }
+            
+            //iterate through and get the values of the rest of the boards in the tree
+            for (int i = 0; i < board.potentialBoards.size(); i++) {
+                makeSmartMove(board.potentialBoards.get(i));
+            }
+            
         }
-        
-        //iterate through and get the values of the rest of the boards in the tree
-        for(int i = 0; i < board.potentialBoards.size(); i++){
-            makeSmartMove(board.potentialBoards.get(i));
         }
-
-        return bestDecision;
+    }
+    
+    private boolean isCornerOpen(OthelloBoard board) {
+        //we only deal with boards we can currently change
+        if(board.depth != 0){
+            return false;
+        }
+        if(isValidMove(0, 0, board.board, color, opponentColor)){
+            bestDecision = new Decision(0,0, "00");
+            return true;
+        }else if(isValidMove(0, rowCount-1, board.board, color, opponentColor)){
+            bestDecision = new Decision(rowCount-1,0, "0" + (rowCount-1));
+            return true;
+        }else if(isValidMove(colCount-1, 0, board.board, color, opponentColor)){
+            bestDecision = new Decision(0,colCount-1, (colCount-1) + "0");
+            return true;
+        }else if(isValidMove(colCount-1, rowCount-1, board.board, color, opponentColor)){
+            bestDecision = new Decision(rowCount-1, colCount-1, "" + (rowCount-1) + (colCount-1));
+            return true;
+        }
+        return false;
     }
     
     private Decision makeRandomMove(char[][] board){
         //try to make a move and if you can't make a move after a certain amount of tries, concede turn
         int tryCount = 0;
         while(!isBoardFull(board)){
-            if(tryCount == 100){
+            if(tryCount == 1000){
                 return new Decision(-1, -1, "");
             }
             
             Random rand = new Random();
             int col = rand.nextInt(colCount);
             int row = rand.nextInt(rowCount);
-            if(isValidMove(col,row,board)){
+            if(isValidMove(col,row,board, color, opponentColor)){
                 tryCount = 0;
                 return new Decision(row,col, row + " " + col);
             }else{
@@ -166,7 +197,11 @@ public class Hafthello {
         //draw piece at first location
         board[row][col] = color;
         
-        ArrayList<String> directions = getValidComboDirections(board, row, col);
+        char opColor = ' ';
+        if(color == 'B'){opColor = 'W';}
+        else{opColor = 'B';}
+        
+        ArrayList<String> directions = getValidComboDirections(board, row, col, color, opColor);
         for(int i = 0; i < directions.size(); i++){
             int pointer = 1;
             if(directions.get(i).equals("up")){
@@ -215,7 +250,7 @@ public class Hafthello {
         return board;
     }
     
-    private boolean isValidMove(int col, int row, char[][] board) {
+    private boolean isValidMove(int col, int row, char[][] board, char currentColor, char currentOpponentColor) {
         //check to see if there is anything already in that spot
         if(board[row][col] != ' '){
             return false;
@@ -270,7 +305,7 @@ public class Hafthello {
         
         //finally check to see if there is a chip on a horizontal, vertical, or diagonal line
         //horizontal lines
-        ArrayList<String> directions = getValidComboDirections(board, row, col);
+        ArrayList<String> directions = getValidComboDirections(board, row, col, currentColor, currentOpponentColor);
         
         //we can't chain a valid move
         if(directions.size() == 0){
@@ -278,25 +313,25 @@ public class Hafthello {
         }
         
         //check to see if we actually flip any pieces
-        int oldScore = evaluateBoard(board);
-        int newScore = evaluateBoard(drawMove(copyOf(board), row, col, currentColor));
+        int oldScore = evaluateBoard(board, currentColor);
+        int newScore = evaluateBoard(drawMove(copyOf(board), row, col, currentColor), currentColor);
         if(oldScore == newScore){
             return false;
         }
         return true;
     }
     
-    private ArrayList<String> getValidComboDirections(char[][] board, int row, int col){
+    private ArrayList<String> getValidComboDirections(char[][] board, int row, int col, char color, char opColor){
         ArrayList<String> directions = new ArrayList<String>();
         
         //go all the way to the right until you hit the end to see if we get any squares
         int pointer = 1;
         while(col + pointer < colCount){
-            if(board[row][col + pointer] == currentOpponentColor){
+            if(board[row][col + pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row][col+pointer] == currentColor){
+                if(pointer > 1 && board[row][col+pointer] == color){
                     directions.add("right");
                 }
                 break;
@@ -304,11 +339,11 @@ public class Hafthello {
         }
         pointer = 1;
         while(col - pointer >= 0){
-            if(board[row][col - pointer] == currentOpponentColor){
+            if(board[row][col - pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land and we've ended on our own color
-                if(pointer > 1 && board[row][col-pointer] == currentColor){
+                if(pointer > 1 && board[row][col-pointer] == color){
                     directions.add("left");
                 }
                 break;
@@ -316,11 +351,11 @@ public class Hafthello {
         }
         pointer = 1;
         while(row + pointer < rowCount){
-            if(board[row + pointer][col] == currentOpponentColor){
+            if(board[row + pointer][col] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row+pointer][col] == currentColor){
+                if(pointer > 1 && board[row+pointer][col] == color){
                     directions.add("down");
                 }
                 break;
@@ -328,11 +363,11 @@ public class Hafthello {
         }
         pointer = 1;
         while(row - pointer >= 0){
-            if(board[row - pointer][col] == currentOpponentColor){
+            if(board[row - pointer][col] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row-pointer][col] == currentColor){
+                if(pointer > 1 && board[row-pointer][col] == color){
                     directions.add("up");
                 }
                 break;
@@ -341,11 +376,11 @@ public class Hafthello {
         
         pointer = 1;
         while(row - pointer >= 0 && col-pointer >= 0){
-            if(board[row - pointer][col - pointer] == currentOpponentColor){
+            if(board[row - pointer][col - pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row-pointer][col-pointer] == currentColor){
+                if(pointer > 1 && board[row-pointer][col-pointer] == color){
                     directions.add("topleft");
                 }
                 break;
@@ -354,11 +389,11 @@ public class Hafthello {
         
         pointer = 1;
         while(row - pointer >= 0 && col + pointer < colCount){
-            if(board[row - pointer][col + pointer] == currentOpponentColor){
+            if(board[row - pointer][col + pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row-pointer][col+pointer] == currentColor){
+                if(pointer > 1 && board[row-pointer][col+pointer] == color){
                     directions.add("topright");
                 }
                 break;
@@ -367,11 +402,11 @@ public class Hafthello {
         
         pointer = 1;
         while(row + pointer < rowCount && col - pointer >= 0){
-            if(board[row + pointer][col - pointer] == currentOpponentColor){
+            if(board[row + pointer][col - pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row+pointer][col-pointer] == currentColor){
+                if(pointer > 1 && board[row+pointer][col-pointer] == color){
                      directions.add("bottomleft");
                 }
                 break;
@@ -380,11 +415,11 @@ public class Hafthello {
         
         pointer = 1;
         while(row + pointer < rowCount && col + pointer < colCount){
-            if(board[row + pointer][col + pointer] == currentOpponentColor){
+            if(board[row + pointer][col + pointer] == opColor){
                 pointer++;
             }else{
                 //we've traversed some of the opponents land
-                if(pointer > 1 && board[row+pointer][col+pointer] == currentColor){
+                if(pointer > 1 && board[row+pointer][col+pointer] == color){
                      directions.add("bottomright");
                 }
                 break;
@@ -404,11 +439,11 @@ public class Hafthello {
         return true;
     }
     
-    public int evaluateBoard(char[][] board){
+    public int evaluateBoard(char[][] board, char color){
         int score = 0;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
-                if(board[i][j] == currentColor){
+                if(board[i][j] == color){
                     score++;
                 }
             }
@@ -424,7 +459,7 @@ public class Hafthello {
         return copy;
     }
 
-    private void printBoard(char[][] board, int depth) {
+    private void printBoard(char[][] board, int depth, char currentColor) {
         System.out.println("Color: " + currentColor + "Depth: " + depth);
         for(int i = 0; i < board.length; i++){
             for (int j = 0; j < board.length; j++) {

@@ -12,6 +12,7 @@ public class OthelloBoard {
     int x;
     int y;
     int depth;
+    int sumScore;
 
     public OthelloBoard(char[][] board) {
         this.board = board;

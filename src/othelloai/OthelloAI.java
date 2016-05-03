@@ -45,7 +45,7 @@ public class OthelloAI {
         Board currentBoard = Board.loadBoard();
         String myMove="", myColorText="";
         System.out.println("--- Othello ---");
-        System.out.println("Player: YOUR NAME HERE\n");
+        System.out.println("Player: Brandon Hafenrichter\n");
         if (currentBoard != null) {                                 //board found, make sure it can be used
             if (currentBoard.status == 1){                          //is a game in progress?   
                 if (keyboardInput.getCharacter(true, 'Y', "YN", 1, "A game appears to be in progress. Abort it? (Y/N (default = Y)") == 'Y') 
