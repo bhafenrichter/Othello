@@ -111,8 +111,13 @@ public class Hafthello {
             int sumScore = 0;
             OthelloBoard cur = board;
             for (int i = 1; i <= defaultDepth; i++) {
-                //multiplier to give prescendence to moves currently happening
-                sumScore += evaluateBoard(cur.board, color);
+                //add when its your board, subtract when its not
+                if(currentColor == color){
+                    sumScore += evaluateBoard(cur.board, currentColor);
+                }else{
+                    sumScore -= evaluateBoard(cur.board, currentColor);
+                }
+                
                 cur = cur.parent;
             }
             //int currentScore = evaluateBoard(board.board);
