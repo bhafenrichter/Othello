@@ -13,6 +13,8 @@ public class OthelloBoard {
     int y;
     int depth;
     int sumScore;
+    char colorMoved;
+    char opponentColor;
 
     public OthelloBoard(char[][] board) {
         this.board = board;

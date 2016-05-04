@@ -114,6 +114,8 @@ public class OthelloAI {
         //==================================================
 
         Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
+        int depth = keyboardInput.getInteger(true, 5, 1, 10, "Set Hafthello Depth (Default = 5):");
+        ai.defaultDepth = depth;
         ai.selectMode();
         //==================================================
         //==================================================

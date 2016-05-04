@@ -18,7 +18,7 @@ public class Hafthello {
     Decision bestDecision = new Decision(0, 0, "");
     int bestDecisionScore = 0;
     
-    public static int defaultDepth = 5;
+    public int defaultDepth = 5;
     
     public Hafthello(int rowCount, int colCount, int maxTime, char color){
         this.rowCount = rowCount;
@@ -108,27 +108,15 @@ public class Hafthello {
         if(!isCornerOpen(board)){
         //end the search and see how far we've come
         if (board.depth == defaultDepth) {
-            int sumScore = 0;
-            OthelloBoard cur = board;
-            for (int i = 1; i <= defaultDepth; i++) {
-                //add when its your board, subtract when its not
-                if(currentColor == color){
-                    sumScore += evaluateBoard(cur.board, currentColor);
-                }else{
-                    sumScore -= evaluateBoard(cur.board, currentColor);
-                }
-                
-                cur = cur.parent;
-            }
-            //int currentScore = evaluateBoard(board.board);
-            if (sumScore > bestDecisionScore) {
+            int heuristic = calculateHeuristic(board);
+            if (heuristic > bestDecisionScore) {
 
                 OthelloBoard presentBoard = board;
                 for (int i = 0; i < defaultDepth - 1; i++) {
                     presentBoard = presentBoard.parent;
                 }
                 bestDecision = new Decision(presentBoard.y, presentBoard.x, "" + presentBoard.x + presentBoard.y);
-                bestDecisionScore = sumScore;
+                bestDecisionScore = heuristic;
             }
         } else {
             //iterate through the entire board and get the valid boards
@@ -142,6 +130,8 @@ public class Hafthello {
                         child.score = evaluateBoard(child.board, currentColor);
                         child.parent = board;
                         child.depth = board.depth + 1;
+                        child.colorMoved = currentColor;
+                        child.opponentColor = currentOpponentColor;
                         board.potentialBoards.add(child);
                     }
                 }
@@ -478,6 +468,61 @@ public class Hafthello {
             System.out.println("");
         }
         System.out.println("");
+    }
+
+    private int calculateHeuristic(OthelloBoard board) {
+        int sumScore = 0;
+            OthelloBoard cur = board;
+            for (int i = 1; i <= defaultDepth; i++) {
+                //add when its your board, subtract when its not
+                if(cur.colorMoved == color){
+                    sumScore += evaluateBoard(cur.board, board.colorMoved) / i;
+                    if(isWeakMove(board)){
+                        sumScore -= 100;
+                    }
+                }else{
+                    sumScore -= evaluateBoard(cur.board, board.opponentColor) / i;
+                    if(isWeakMove(board)){
+                        sumScore += 100;
+                    }
+                }
+                
+                cur = cur.parent;
+            }
+            return sumScore;
+    }
+    
+    private boolean isWeakMove(OthelloBoard b){
+        int row = b.y;
+        int col = b.x;
+        
+        if(row == 1 && col == 1){
+            return true;
+        }else if(row == 1 && col == 0){
+            return true;
+        }else if(row == 0 && col == 1){
+            return true;
+        }else if(row == rowCount - 2 && col == 0){
+            return true;
+        }else if(row == rowCount - 2 && col == 1){
+            return true;
+        }else if(row == rowCount - 1 && col == 1){
+            return true;
+        }else if(col == colCount - 2 && row == 0){
+            return true;
+        }else if(col == colCount - 2 && row == 1){
+            return true;
+        }else if(col == colCount - 1 && row == 1){
+            return true;
+        }else if(col == colCount - 1 && row == rowCount - 2){
+            return true;
+        }else if(col == colCount - 2 && row == rowCount - 2){
+            return true;
+        }else if(col == colCount - 2 && row == rowCount - 1){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
 
