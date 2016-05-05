@@ -1,4 +1,4 @@
-package othelloai;
+
 
 //Program:      Othello
 //Course:       COSC470
@@ -73,6 +73,12 @@ public class OthelloAI {
         //==================================================
         //==================================================
         
+        Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, ' ');
+        String mode = ai.selectMode();
+        if(mode.equals("hafthello")){
+            int depth = keyboardInput.getInteger(true, 5, 1, 5, "Set Hafthello Depth (Default = 5):");
+            ai.defaultDepth = depth;
+        }
         
         //==================================================
         //==================================================
@@ -112,11 +118,9 @@ public class OthelloAI {
         //INSERT CODE HERE FOR ANY ADDITIONAL OUTPUT OPTIONS
         //==================================================
         //==================================================
-
-        Hafthello ai = new Hafthello(currentBoard.boardRows, currentBoard.boardCols, currentBoard.maxMoveTime, myColor);
-        int depth = keyboardInput.getInteger(true, 5, 1, 10, "Set Hafthello Depth (Default = 5):");
-        ai.defaultDepth = depth;
-        ai.selectMode();
+        
+        ai.setColors(myColor);
+        
         //==================================================
         //==================================================
 
@@ -138,12 +142,13 @@ public class OthelloAI {
 
                 //artificial intelligence makes his move
                 Decision d = ai.makeMove(currentBoard.board);
-                
+
                 //if we have found a valid move
                 if (d.move.length() > 0) {
                     //set the currentBoard parameters to reflect the decision
                     currentBoard.board = ai.drawMove(currentBoard.board, d.row, d.col, currentBoard.whoseTurn);
                     //myMove = currentBoard.whoseTurn + " has a score of: " + ai.evaluateBoard(currentBoard.board);
+                    d.formatDecision();
                     myMove = d.move;
                 }else{
                     myMove = "";
